@@ -11,12 +11,12 @@ website:
 # PDF EXTRACTION (Stage 0)
 # =============================================================================
 pdf_extraction:
-  dpi: 600                 # Resolution for PDF conversion (600 for high quality)
+  dpi: 200                 # 200 DPI balances quality and memory on Railway (was 600 locally)
   image_format: "jpeg"     # JPEG is faster than PNG
   quality: 95
-  poppler_path: "F:\\poppler\\poppler-24.08.0\\Library\\bin"
-  max_image_width: 4960       # Max width in pixels (600 DPI * 8.27 inches A4)
-  max_image_height: 7016      # Max height in pixels (600 DPI * 11.69 inches A4)
+  poppler_path: null       # Not needed — using PyMuPDF instead of pdf2image
+  max_image_width: 1654       # Max width in pixels (200 DPI * 8.27 inches A4)
+  max_image_height: 2338      # Max height in pixels (200 DPI * 11.69 inches A4)
 
 # =============================================================================
 # DETECTION SETTINGS (Stage 1)
