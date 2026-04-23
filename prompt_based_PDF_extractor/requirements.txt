@@ -1,7 +1,7 @@
 # Prompt-Based PDF Catalog Extractor - Requirements
 
-# Core PDF processing
-pdf2image>=1.16.0
+# Core PDF processing (PyMuPDF replaces pdf2image — no poppler needed)
+PyMuPDF>=1.23.8
 Pillow>=10.0.0
 pdfplumber>=0.10.0
 

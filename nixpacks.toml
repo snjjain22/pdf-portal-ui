@@ -1,17 +1,10 @@
 [phases.setup]
-nixPkgs = [
-  "poppler_utils",
-  "gcc",
-  "ninja",
-  "git",
-  "libGL",
-  "glib",
-]
+nixPkgs = ["gcc", "ninja", "git", "libGL", "glib"]
 
 [phases.install]
 cmds = [
   "pip install torch==2.2.2+cpu torchvision==0.17.2+cpu --index-url https://download.pytorch.org/whl/cpu",
-  "pip install groundingdino-py>=0.1.0 segment-anything>=1.0",
+  "pip install groundingdino-py segment-anything",
   "pip install -r prompt_based_PDF_extractor/requirements.txt",
   "pip install -r pdf_portal/requirements.txt",
 ]
