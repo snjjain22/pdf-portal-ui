@@ -1,0 +1,118 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.env
+venv/
+env/
+
+# Large files - PDFs and model weights
+*.pdf
+*.pth
+*.pt
+*.onnx
+*.bin
+models/
+
+# Scrapy outputs
+outputs/
+logs/
+
+# RT Scraper outputs
+rt-scraper/outputs/
+
+# Merino Scraper outputs
+merino-laminates-scraper/merino_scraper/merino_products.json
+merino-laminates-scraper/merino_scraper/merino_products.xlsx
+merino-laminates-scraper/merino_scraper/images/
+
+# General scraper outputs (for future scrapers)
+*/outputs/
+*/images/
+*_products.json
+*_products.xlsx
+*.log
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Local scripts and temp files
+scripts/
+temp/
+tmp/
+*.tmp
+
+# Backup files
+README_old.md
+*.bak
+*.backup
+
+# Pipeline test outputs and results
+rt-classification-pipeline/test_run/
+rt-classification-pipeline/demo_test/
+rt-classification-pipeline/test_integrated_output/
+rt-classification-pipeline/test_output/
+rt-classification-pipeline/complete_output/
+rt-classification-pipeline/complete_seo_output/
+rt-classification-pipeline/final_output/
+rt-classification-pipeline/universal_output/
+rt-classification-pipeline/merino_complete_output/
+rt-classification-pipeline/merino_final_output/
+rt-classification-pipeline/manager_demo/
+rt-classification-pipeline/test_images_fix/
+rt-classification-pipeline/practice_demo/
+rt-classification-pipeline/quick_test/
+rt-classification-pipeline/pipeline_only_test/
+rt-classification-pipeline/royale_touche_full/
+rt-classification-pipeline/production_*/
+test_config_pipeline_output/
+
+# All output directories with common patterns
+**/test_run/
+**/demo_test/
+**/manager_demo/
+**/*_output/
+**/*_test/
+**/*_demo/
+
+# CSV and JSON outputs
+*.csv
+!configs/**/*.csv
+*_results.json
+*_export.csv
+matrixify_export.*
+scraped_products.json
+classification_results.json
+seo_optimized_results.json
+
+# Downloaded images
+**/images/*.jpg
+**/images/*.png
+**/images/*.jpeg
+**/images/*.webp
+europratik_laminates_prompt_based/scraper/checkpoint_laminates.json
+europratik_laminates_prompt_based/scraper/scraped_laminates.json
+projectpath.md
+test_prompt_based_pipeline.sh
+
+# PDF Extractor outputs and large files
+prompt_based_PDF_extractor/outputs/
+prompt_based_PDF_extractor/PDFs/
+prompt_based_PDF_extractor/models/
+pdf-catalog-extractor/outputs/
+pdf-catalog-extractor/PDFs/
+pdf-catalog-extractor/models/

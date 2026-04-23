@@ -1,0 +1,19 @@
+Given the following scene specification, write a single, ultra-basic image-generation prompt for a scene that showcases "the given laminate".
+
+Scene specification:
+- Room type: {{ room }}
+- Surface: {{ surface }}
+{% if furniture_type %}- Main furniture piece: {{ furniture_type }}{% endif %}
+
+Requirements for the prompt:
+- Focus entirely on the object/room containing the laminate.
+- DO NOT add adjectives like "modern", "luxury", "bright", "cozy", "realistic", or "beautiful".
+- DO NOT mention lighting, camera angles, or atmosphere.
+- ALWAYS use the exact phrase "the given laminate".
+
+Here are the EXACT formulas you should follow:
+Example 1: "A {{ room }} with a {{ surface }} made from the given laminate."
+Example 2: "A {{ furniture_type }} finished with the given laminate."
+Example 3: "A {{ room }} with the given laminate applied to the {{ surface }}."
+
+Output ONLY the final image-generation prompt text. No quotes, no explanations, no extra punctuation.

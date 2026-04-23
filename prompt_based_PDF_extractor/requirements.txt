@@ -1,0 +1,49 @@
+# Prompt-Based PDF Catalog Extractor - Requirements
+
+# Core PDF processing
+pdf2image>=1.16.0
+Pillow>=10.0.0
+pdfplumber>=0.10.0
+
+# Data handling
+pandas>=2.0.0
+numpy>=1.24.0
+
+# HTTP requests for API calls
+requests>=2.31.0
+
+# Template rendering
+jinja2>=3.1.0
+
+# Configuration
+PyYAML>=6.0.1
+python-dotenv>=1.0.0
+
+# Object Detection (Grounding DINO + SAM)
+torch>=2.0.0
+torchvision>=0.15.0
+groundingdino-py>=0.1.0
+segment-anything>=1.0
+
+# OCR for SKU extraction
+easyocr>=1.7.0
+
+# Image deduplication
+imagehash>=4.3.0
+
+# Progress bars
+tqdm>=4.65.0
+
+# Note: Grounding DINO may require additional setup:
+# pip install groundingdino-py
+# Or install from source: https://github.com/IDEA-Research/GroundingDINO
+
+# AWS S3
+boto3>=1.34.0
+
+# Hugging Face Spaces API client (for application image generation)
+gradio_client>=1.0.0
+
+# QR code generation (Stage 8)
+qrcode[pil]>=7.4.2
+fpdf2>=2.7.9

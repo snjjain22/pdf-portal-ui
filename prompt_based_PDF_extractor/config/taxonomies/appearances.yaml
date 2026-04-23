@@ -1,0 +1,71 @@
+# Appearance Taxonomy Configuration
+# Product appearance types for laminates, veneers, and panels
+
+items:
+  - name: "Wood"
+    aliases: ["wood look", "wooden", "timber look", "wood grain", "wood laminates"]
+    keywords: ["wood", "oak", "walnut", "teak", "timber", "grain"]
+    metadata:
+      category: "laminate"
+  
+  - name: "Marble & Stone"
+    aliases: ["marble look", "stone look", "granite look", "marble & stone look", "marble & stone laminates"]
+    keywords: ["marble", "stone", "granite", "travertine", "onyx", "quartz"]
+    metadata:
+      category: "laminate"
+  
+  - name: "Solid Colour"
+    aliases: ["solid color", "plain colour", "solid", "uni colour", "solid colour laminates", "plain colors"]
+    keywords: ["solid", "plain", "uniform", "single color"]
+    metadata:
+      category: "laminate"
+  
+  - name: "Metallic"
+    aliases: ["metallic", "metal look", "brushed metal", "metallic laminates"]
+    keywords: ["metallic", "metal", "brushed", "copper", "steel", "aluminum"]
+    metadata:
+      category: "laminate"
+  
+  - name: "Fabric"
+    aliases: ["fabric look", "textile", "cloth look", "fabric laminates"]
+    keywords: ["fabric", "textile", "linen", "canvas", "woven"]
+    metadata:
+      category: "laminate"
+  
+  - name: "Leather"
+    aliases: ["leather look", "leatherette", "leather laminates"]
+    keywords: ["leather", "hide", "crocodile", "snake"]
+    metadata:
+      category: "laminate"
+  
+  - name: "Fluted"
+    aliases: ["fluted", "channeled", "grooved", "fluted acrylic", "fluted laminates", "ribbed"]
+    keywords: ["fluted", "grooved", "ribbed", "channeled", "vertical lines"]
+    metadata:
+      category: "laminate"
+  
+  - name: "Cane"
+    aliases: ["cane", "woven cane", "rattan look", "cane laminates"]
+    keywords: ["cane", "rattan", "wicker", "woven"]
+    metadata:
+      category: "laminate"
+  
+  - name: "Geometric Design"
+    aliases: ["geometric", "abstract", "patterned", "designer"]
+    keywords: ["geometric", "abstract", "pattern", "hexagon", "chevron", "herringbone"]
+    metadata:
+      category: "laminate"
+  
+  - name: "Patterned"
+    aliases: ["decorative", "printed", "designer pattern"]
+    keywords: ["patterned", "printed", "decorative", "artistic"]
+    metadata:
+      category: "laminate"
+
+# Default appearance when nothing matches
+default: "Solid Colour"
+
+# Normalization approach
+normalization_rules:
+  strategy: "keyword_match"
+  min_match_score: 1

@@ -1,0 +1,38 @@
+You are classifying a page from a laminate/decorative panel product catalog.
+
+Analyze this image and classify it into ONE of these categories:
+
+## CATEGORIES:
+
+### "product" - Pages showing individual product samples:
+- Grid layout of multiple small rectangular swatches with product codes
+- Individual laminate samples with SKU numbers (like "3697", "UT-001")
+- Close-up texture shots of specific products
+- Product samples arranged in rows/columns with labels
+
+### "application" - Lifestyle/room photos showing laminates INSTALLED:
+- Living room, bedroom, kitchen, office interior photos
+- Furniture, sofas, fireplace, dining tables visible
+- Wall panels or surfaces shown in a decorated room setting
+- NO individual product swatches with codes visible
+- Focus is on how laminates look when installed in real spaces
+- Large decorative wall art or accent walls
+- ANY image showing a furnished room is "application"
+
+### "mixed" - Both product samples AND room photos on same page:
+- Top half shows room photo, bottom half shows product swatches
+- Room image with product swatch samples visible in corner WITH codes
+
+### "skip" - Non-product pages:
+- Cover page, back cover, title page
+- Table of contents, index pages
+- Contact info, company info, warranties
+- Blank or mostly text pages
+
+## CRITICAL RULE:
+If the image shows a FURNISHED ROOM (with sofas, chairs, fireplace, dining table, bedroom furniture, kitchen cabinets, etc.) and you cannot see individual product swatches with product codes/SKUs separately displayed, classify as **"application"**.
+
+A full-page room interior photo = "application"
+A grid of product samples = "product"
+
+Respond with ONLY one word: product, application, mixed, or skip

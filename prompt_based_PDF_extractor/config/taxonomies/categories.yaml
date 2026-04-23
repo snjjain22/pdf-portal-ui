@@ -1,0 +1,93 @@
+# Product Category Taxonomy Configuration
+# Main product categories and subcategories for PDF catalogs
+
+categories:
+  - name: "laminate"
+    display_name: "Laminate"
+    description: "Decorative surface sheets, typically 0.8-1.5mm thick"
+    aliases: ["laminates", "laminating", "laminate sheet", "HPL"]
+    keywords: ["laminate", "decorative sheet", "surface material", "HPL", "high pressure"]
+    
+    subcategories:
+      - name: "Decorative"
+        display_name: "Decorative Laminate"
+        description: "Standard decorative laminates"
+        keywords: ["decorative", "standard", "regular"]
+      
+      - name: "Acrylic"
+        display_name: "Acrylic Laminate"
+        description: "High-gloss acrylic finish laminates"
+        keywords: ["acrylic", "glossy", "high gloss", "shiny"]
+      
+      - name: "Glass"
+        display_name: "Glass Laminate"
+        description: "Glass-finish decorative laminates"
+        keywords: ["glass", "glass finish", "mirror"]
+      
+      - name: "PVC"
+        display_name: "PVC Laminate"
+        description: "PVC-based laminate sheets"
+        keywords: ["pvc", "vinyl", "plastic"]
+      
+      - name: "Premium"
+        display_name: "Premium Laminate"
+        description: "Premium quality laminates"
+        keywords: ["premium", "luxury", "high-end"]
+
+  - name: "panel"
+    display_name: "Panel"
+    description: "Decorative wall or surface panels"
+    aliases: ["panels", "wall panel", "surface panel"]
+    keywords: ["panel", "wall panel", "surface panel", "cladding"]
+    
+    subcategories:
+      - name: "Acrylic"
+        display_name: "Acrylic Panel"
+        description: "Acrylic-based decorative panels"
+        keywords: ["acrylic panel", "acrylic sheet"]
+      
+      - name: "Glass"
+        display_name: "Glass Panel"
+        description: "Glass decorative panels"
+        keywords: ["glass panel", "glass sheet"]
+      
+      - name: "Wall Panel"
+        display_name: "Wall Panel"
+        description: "Decorative wall covering panels"
+        keywords: ["wall", "covering", "cladding"]
+  
+  - name: "veneer"
+    display_name: "Veneer"
+    description: "Thin wood sheets for natural wood appearance"
+    aliases: ["wood veneer", "veneers", "natural veneer"]
+    keywords: ["veneer", "wood", "natural wood", "real wood"]
+    
+    subcategories:
+      - name: "Natural"
+        display_name: "Natural Veneer"
+        description: "Real wood veneer sheets"
+        keywords: ["natural", "real", "genuine"]
+      
+      - name: "Engineered"
+        display_name: "Engineered Veneer"
+        description: "Processed wood veneer"
+        keywords: ["engineered", "reconstituted", "processed"]
+
+# Default category when nothing matches
+default:
+  category: "laminate"
+  subcategory: "Decorative"
+
+# Category detection rules
+detection_rules:
+  - category: "panel"
+    priority: 1
+    keywords: ["panel", "acrylic panel", "glass panel", "wall panel", "doppio"]
+  
+  - category: "veneer"
+    priority: 2
+    keywords: ["veneer", "real wood", "natural wood"]
+  
+  - category: "laminate"
+    priority: 3
+    keywords: ["laminate", "HPL", "decorative sheet"]

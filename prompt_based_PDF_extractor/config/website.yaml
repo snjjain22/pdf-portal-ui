@@ -1,0 +1,191 @@
+# Prompt-Based PDF Catalog Extractor - Main Configuration
+
+website:
+  name: "PDF Catalog Extractor"
+  domain: "nextleveldecor.in"
+  brand: "Next Level Decor"
+  manufacturer: "Next Level Decor"
+  description: "Prompt-based PDF catalog product extractor"
+
+# =============================================================================
+# PDF EXTRACTION (Stage 0)
+# =============================================================================
+pdf_extraction:
+  dpi: 600                 # Resolution for PDF conversion (600 for high quality)
+  image_format: "jpeg"     # JPEG is faster than PNG
+  quality: 95
+  poppler_path: "F:\\poppler\\poppler-24.08.0\\Library\\bin"
+  max_image_width: 4960       # Max width in pixels (600 DPI * 8.27 inches A4)
+  max_image_height: 7016      # Max height in pixels (600 DPI * 11.69 inches A4)
+
+# =============================================================================
+# DETECTION SETTINGS (Stage 1)
+# =============================================================================
+
+# VLM Page Classification
+page_classification:
+  enabled: true               # Use VLM to classify pages before detection
+  model: "meta-llama/llama-4-maverick"
+  api_url: "https://openrouter.ai/api/v1/chat/completions"
+  api_key_env: "OPENROUTER_API_KEY"
+  timeout: 30
+
+# Grounding DINO Settings
+grounded_sam_detection:
+  # Detection prompt - what to look for (covers laminates, acrylics, wood, veneers, fluted panels)
+  prompt: "product swatch . material sample with code . laminate sheet . wood veneer . acrylic panel . fluted panel . ribbed panel . grooved panel . decorative panel . rectangular product image"
+  
+  # Thresholds
+  box_threshold: 0.15         # Confidence threshold for detection (0.0-1.0) - lowered for maximum recall
+  text_threshold: 0.20        # Text matching threshold
+  nms_threshold: 0.3          # Non-max suppression IoU threshold (lower = more aggressive duplicate removal)
+  
+  # Area filters (as percentage of page area)
+  min_area_pct: 2.0           # Minimum swatch area (% of page) - lowered
+  max_area_pct: 80.0          # Maximum swatch area (% of page) - increased for large panel displays
+  
+  # Aspect ratio filter
+  min_aspect_ratio: 0.4       # Reject very thin detections
+  
+  # Model paths (relative to models/ folder)
+  dino_weights: "groundingdino_swint_ogc.pth"
+  sam_checkpoint: "sam_vit_b_01ec64.pth"
+  sam_model_type: "vit_b"
+  
+  # Use SAM for mask refinement (slower but more precise)
+  use_sam_refinement: false   # Set to true for precise boundaries
+
+# =============================================================================
+# PDF SPECIFIC OVERRIDES
+# Configuration overrides for individual PDFs based on filename (partial match)
+# =============================================================================
+pdf_overrides:
+  # Example: Override detection settings for specific catalogs
+  "WAY_TO_ZERO_STONE":
+    grounded_sam_detection:
+      min_aspect_ratio: 0.35  # Allow slightly thinner rectangles
+      min_area_pct: 1.5       # Detect smaller samples
+  
+  "ANOTHER_CATALOG":
+    grounded_sam_detection:
+      box_threshold: 0.20     # More sensitive detection
+
+# OCR Settings for SKU Extraction
+ocr_extraction:
+  enabled: true
+  engine: "easyocr"           # "easyocr" or "tesseract"
+  languages: ["en"]
+  
+  # SKU detection patterns (regex)
+  sku_patterns:
+    - "\\d{4,6}"                          # 4-6 digit codes (e.g., 3697, 10234)
+    - "[A-Z]{2,4}[-\\s]?\\d{3,5}"         # Letter prefix (e.g., UT-001, ABC-123)
+    - "\\d{4,5}\\s*[A-Z]{1,3}"            # Digit + suffix (e.g., 3697 SU)
+    - "[A-Z]+\\s*\\d+"                    # Any letters + numbers
+  
+  # Spatial matching settings
+  search_radius_ratio: 0.2    # Search radius as ratio of swatch height
+  prefer_position: "below"    # Where to look for SKU: "below", "above", "right", "any"
+  
+  # Auto-SKU generation when OCR fails
+  auto_sku_template: "NLD-P{page:02d}S{swatch:02d}"
+
+# =============================================================================
+# LLM SETTINGS (Stage 2 & 3)
+# =============================================================================
+
+# Field Mapping LLM (DeepSeek - fast and cheap)
+field_mapping:
+  enabled: true
+  model: "deepseek/deepseek-chat"
+  api_url: "https://openrouter.ai/api/v1/chat/completions"
+  api_key_env: "OPENROUTER_API_KEY"
+  max_tokens: 2000
+  temperature: 0.1            # Low temperature for consistent output
+  timeout: 60
+  
+  # Retry settings
+  max_retries: 3
+  retry_delay: 5
+
+# SEO Generation LLM
+seo_generation:
+  enabled: true
+  model: "deepseek/deepseek-chat"
+  api_url: "https://openrouter.ai/api/v1/chat/completions"
+  api_key_env: "OPENROUTER_API_KEY"
+  max_tokens: 1500
+  temperature: 0.3
+  timeout: 60
+
+# VLM for image-based classification (optional - colors from images)
+vlm_classification:
+  enabled: true
+  model: "meta-llama/llama-4-maverick"
+  api_url: "https://openrouter.ai/api/v1/chat/completions"
+  api_key_env: "OPENROUTER_API_KEY"
+  max_tokens: 500
+  temperature: 0.3
+  timeout: 90
+
+# =============================================================================
+# PRODUCT DEFAULTS
+# =============================================================================
+product_defaults:
+  category: "laminate"
+  product_type: "Laminate"
+  base_material: "Laminate"
+  vendor: "Next Level Decor"
+  
+  # Default dimensions (when not extractable)
+  size: "8*4 ft"
+  width: "4 ft"
+  length: "8 ft"
+  thickness: "1.0 mm"
+  coverage_area: "32 sqft"
+  
+  # Default properties
+  indoor_outdoor: "Indoor"
+  sub_category: "Decorative"
+  finish: "Texture"
+  
+  # Resistance features (defaults)
+  scratch_resistance: "Yes"
+  water_moisture_resistant: "Yes"
+  fire_resistant: "Yes"
+  uv_resistant: "Yes"
+  anti_fingerprint: "No"
+  
+  # Applications
+  applications: "['Living Room', 'Bedroom', 'Kitchen', 'Office', 'Wardrobe', 'TV Unit']"
+  project_type: "['Commercial', 'Residential']"
+
+# =============================================================================
+# MATRIXIFY EXPORT (Stage 4)
+# =============================================================================
+matrixify:
+  # Shopify category
+  shopify_category: "Office Supplies > General Office Supplies > Laminating Film, Pouches & Sheets > Laminating Sheets"
+  
+  # Inventory defaults
+  inventory_qty: 1
+  inventory_policy: "deny"
+  
+  # Shipping
+  weight: 0
+  weight_unit: "kg"
+  requires_shipping: true
+  
+  # Tax
+  taxable: true
+
+# =============================================================================
+# OUTPUT SETTINGS
+# =============================================================================
+output:
+  # Debug visualizations
+  save_debug_images: true
+  draw_bounding_boxes: true
+  
+  # Data files
+  save_intermediate_json: true

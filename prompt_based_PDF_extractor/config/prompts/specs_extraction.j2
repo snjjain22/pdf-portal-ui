@@ -1,0 +1,63 @@
+Extract structured product specifications from this catalog text.
+
+## INPUT TEXT:
+```
+{{ raw_text }}
+```
+
+## INSTRUCTIONS:
+
+Parse the text to find product specifications. Only extract what is explicitly stated - do NOT invent or guess values.
+
+### FIELDS TO EXTRACT:
+
+1. **material** - Base material type
+   - Look for: laminate, HPL, PVC, MDF, acrylic, veneer
+   - Example: "High Pressure Laminate", "PVC", "Acrylic"
+
+2. **finish** - Surface finish
+   - Look for: matte, gloss, texture, suede, satin, embossed
+   - Example: "Super Matte", "High Gloss", "Textured"
+
+3. **thickness** - Product thickness
+   - Look for: measurements in mm
+   - Format as: "1.0 mm", "1.5 mm"
+   - Common values: 0.7mm, 0.8mm, 1.0mm, 1.2mm, 1.5mm
+
+4. **size** - Product dimensions
+   - Look for: measurements in feet or mm
+   - Format as: "8x4 Feet" or "1220x2440 mm"
+   - Common: 8x4 ft, 4x8 ft, 1220x2440mm
+
+5. **features** - Special properties
+   - Look for: scratch resistant, waterproof, fire retardant, UV resistant, anti-bacterial
+   - Comma-separated list
+
+6. **collection_name** - Series or collection
+   - Look for: named series like "Ubuntu", "Doppio", "Premium Series"
+   - Often appears as header or in prominent text
+
+7. **backer_material** - Backing layer if different
+   - Look for: kraft paper, phenolic, melamine
+
+## OUTPUT FORMAT
+
+Return ONLY a valid JSON object:
+
+```json
+{
+  "material": "extracted material or N/A",
+  "finish": "extracted finish or N/A",
+  "thickness": "extracted thickness or N/A",
+  "size": "extracted size or N/A",
+  "features": "comma-separated features or N/A",
+  "collection_name": "extracted collection or N/A",
+  "backer_material": "extracted backer or N/A"
+}
+```
+
+## RULES:
+- Use "N/A" for fields not found in text
+- Do NOT invent specifications
+- Normalize units (mm for thickness, ft for size)
+- Keep original terminology for finish names

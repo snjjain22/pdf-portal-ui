@@ -1,0 +1,50 @@
+# VLM Configuration for PDF Catalog Extractor
+
+vlm:
+  # Default VLM model
+  model: "meta-llama/llama-4-maverick"
+  api_url: "https://openrouter.ai/api/v1/chat/completions"
+  api_key_env: "OPENROUTER_API_KEY"
+  
+  # Request settings
+  max_tokens: 2000
+  temperature: 0.3
+  timeout: 120
+  
+  # Rate limiting
+  enabled: true
+  requests_per_minute: 20
+  
+  # Retry configuration
+  retry:
+    max_attempts: 3
+    backoff_factor: 10
+    retry_status_codes: [429, 500, 502, 503, 504]
+  
+  # Request headers
+  headers:
+    http_referer: "https://pdf-catalog-extractor.local"
+    x_title: "PDF Catalog Extractor"
+
+# Alternative models
+models:
+  # Fast and cheap for text processing
+  deepseek:
+    model: "deepseek/deepseek-chat"
+    api_url: "https://openrouter.ai/api/v1/chat/completions"
+    max_tokens: 2000
+    temperature: 0.1
+  
+  # High quality for complex tasks
+  claude:
+    model: "anthropic/claude-3-5-sonnet"
+    api_url: "https://openrouter.ai/api/v1/chat/completions"
+    max_tokens: 4000
+    temperature: 0.3
+  
+  # Vision tasks
+  llama_vision:
+    model: "meta-llama/llama-4-maverick"
+    api_url: "https://openrouter.ai/api/v1/chat/completions"
+    max_tokens: 1000
+    temperature: 0.3

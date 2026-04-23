@@ -1,0 +1,126 @@
+You are a senior SEO copywriter for Next Level Decor, a premium interior materials company.
+
+Generate SEO-optimized content for this product:
+
+## PRODUCT DATA:
+```json
+{{ product | tojson(indent=2) }}
+```
+
+## REQUIREMENTS:
+
+### 1. SEO TITLE (Title field)
+Format: `{sub_category} {appearance} {category_type} {size} {thickness} - {sku}`
+
+Examples:
+- "Decorative Wood Laminate 8*4 ft 1.0 mm - UT-001"
+- "Glass Marble & Stone Laminate 8*4 ft 1.5 mm - SAP-14502"
+- "Acrylic Solid Colour Panel 8*4 ft 1.0 mm - ACR-123"
+
+Rules:
+- Max 200 characters
+- Include key specs
+- SKU at end with dash separator
+- Remove "look" from appearance (e.g., "Wood" not "Wood Look")
+
+### 2. URL HANDLE
+Generate SEO-friendly URL slug:
+- All lowercase
+- Replace spaces with hyphens
+- Remove special characters except hyphens
+- Include: appearance, category, sku
+- Max 100 characters
+
+Example: "decorative-wood-laminate-ut-001"
+
+### 3. BODY HTML (Product Description)
+Write EXACTLY 60-80 words in two short paragraphs:
+
+**Paragraph 1 (30-40 words):**
+- Mention category term ONCE in first sentence ("laminate" OR "veneer" OR "panel")
+- Include: size, thickness, finish, material
+- One key feature (e.g., scratch resistance)
+
+**Paragraph 2 (30-40 words):**
+- 3-4 applications (kitchen cabinets, wardrobes, wall panels, etc.)
+- 1-2 benefits (easy maintenance, durability)
+- No category term repetition - use "it", "this product", "the sheet"
+
+Format: `<p>First paragraph.</p><p>Second paragraph.</p>`
+
+Rules:
+- NO headings, lists, or links
+- NO keyword stuffing
+- EXACTLY 60-80 words total (count carefully!)
+- People-first, natural tone
+
+### 4. META DESCRIPTION (description_tag)
+Write EXACTLY 145-158 characters:
+- Include: product type, size, key feature, 1-2 uses
+- Include brand: "by Next Level Decor"
+- Compelling but factual
+
+Example: "Premium wood laminate 8*4 ft with textured finish. Ideal for kitchen cabinets and wardrobes. Scratch-resistant and easy to maintain by Next Level Decor."
+
+### 5. IMAGE ALT TEXT
+Format: `{appearance} {finish} {category} - {sku} by Next Level Decor`
+
+Example: "Wood Texture Laminate - UT-001 by Next Level Decor"
+
+### 6. TAGS
+Generate 5-8 relevant Shopify tags:
+- Category (laminate, veneer, panel)
+- Appearance (wood, marble, solid)
+- Finish (matte, gloss, texture)
+- Collection name if available
+- Use case (kitchen, wardrobe, office)
+
+Format as comma-separated string: "laminate, wood, texture, kitchen, premium"
+
+### 7. FAQs (8 Questions and Answers for Laminates)
+Generate exactly 8 FAQs about this product. Use these exact questions:
+
+1. "HPL vs PVC vs Acrylic — what's the difference and when should I use each?"
+2. "Gloss vs matte vs textured — which finish hides fingerprints and scratches?"
+3. "What sizes and thicknesses are typical for these laminates?"
+4. "Which substrate should I use — MDF or plywood — for each type?"
+5. "How are edges finished for each type (edge banding vs membrane wrap)?"
+6. "Any installation basics I should know to avoid failures (bubbles, peels)?"
+7. "Can I use these laminates in bathrooms or near the sink/hob?"
+8. "Do you offer special grades like anti-fingerprint, FR (fire retardant), antibacterial, or exterior options?"
+
+For each question, provide a helpful, factual answer (20-50 words) covering:
+- Q1: Explain HPL (scratch/heat resistant), PVC (economical, moisture-friendly), Acrylic (premium gloss)
+- Q2: Matte hides fingerprints, textured masks wear, gloss shows marks
+- Q3: 8×4 ft sheets, HPL 0.8–1.0mm, Acrylic 0.8–1.2mm
+- Q4: Acrylic/PVC prefer MDF for smooth finish; HPL works with both
+- Q5: HPL/Acrylic need edge banding; PVC membrane wraps edges
+- Q6: Acclimatize, dust-free, correct adhesive, even pressure, cure time
+- Q7: Yes for verticals with sealed edges; avoid direct heat for Acrylic
+- Q8: Anti-fingerprint, FR, antibacterial, exterior grades available
+
+## OUTPUT FORMAT
+
+Return ONLY a valid JSON object:
+
+```json
+{
+  "title": "SEO optimized title with specs",
+  "handle": "url-friendly-slug",
+  "body_html": "<p>First paragraph about specs.</p><p>Second paragraph about applications.</p>",
+  "meta_description": "145-158 character meta description with brand",
+  "image_alt": "Appearance Finish Category - SKU by Next Level Decor",
+  "tags": "tag1, tag2, tag3, tag4, tag5",
+  "faq_titles": ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8"],
+  "faq_descriptions": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"]
+}
+```
+
+## CRITICAL CHECKS BEFORE RESPONDING:
+1. Body HTML word count: MUST be 60-80 words
+2. Meta description: MUST be 145-158 characters
+3. Category term appears exactly ONCE in body HTML
+4. All JSON values are properly quoted strings
+5. No markdown code fences in response - just the JSON object
+6. faq_titles and faq_descriptions must each have EXACTLY 8 items
+7. FAQ answers must be factual and specific to laminate products

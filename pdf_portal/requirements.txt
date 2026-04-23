@@ -1,0 +1,20 @@
+gradio>=4.36.0
+
+# Pipeline dependencies (CPU-only subset — Stages 0, 2, 3, 4, 6, 7, 8)
+pdf2image>=1.16.0
+Pillow>=10.0.0
+pdfplumber>=0.10.0
+pandas>=2.0.0
+numpy>=1.24.0
+requests>=2.31.0
+jinja2>=3.1.0
+PyYAML>=6.0.1
+python-dotenv>=1.0.0
+tqdm>=4.65.0
+boto3>=1.34.0
+gradio_client>=1.0.0
+imagehash>=4.3.0
+
+# QR code generation
+qrcode[pil]>=7.4.2
+fpdf2>=2.7.9

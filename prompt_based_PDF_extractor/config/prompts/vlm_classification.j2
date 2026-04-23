@@ -1,0 +1,51 @@
+Analyze this product swatch image and extract visual attributes.
+
+## INSTRUCTIONS:
+
+Look at the laminate/panel sample image and determine:
+
+### 1. COLOR (Single Primary Color)
+What is the SINGLE MOST DOMINANT color in this product?
+- Return ONLY ONE color - the color that covers the most area
+- Use standard color names: Beige, Brown, Black, White, Grey, Cream, Red, Blue, Green, Yellow, Orange, Pink, Purple, Gold, Silver, Natural, Walnut, Oak, Teak, Multi Colour
+- If the product has a clear primary color with accents, return only the primary color
+- If truly multi-colored with no dominant color, use "Multi Colour"
+- NEVER return more than one color
+
+### 2. APPEARANCE
+What does this surface look like?
+Choose ONE:
+- **Wood** - Wood grain pattern, timber texture
+- **Marble & Stone** - Marble veins, stone texture, granite
+- **Solid Colour** - Plain, uniform color, no pattern
+- **Metallic** - Metallic sheen, brushed metal look
+- **Fabric** - Textile texture, woven pattern
+- **Leather** - Leather grain texture
+- **Fluted** - Vertical grooves, 3D ribbed surface
+- **Geometric Design** - Geometric patterns, abstract designs
+- **Cane** - Woven cane/rattan pattern
+- **Patterned** - Other decorative patterns
+
+### 3. FINISH (if visible)
+What is the surface finish?
+- **High Gloss** - Very shiny, reflective
+- **Gloss** - Shiny but not mirror-like
+- **Matte** - Flat, non-reflective
+- **Texture** - Visible texture/embossing
+- **Suede** - Soft, velvety appearance
+- If cannot determine: leave as "unknown"
+
+## OUTPUT FORMAT
+
+Return ONLY a valid JSON object:
+
+```json
+{
+  "color": "SingleDominantColor",
+  "appearance": "Appearance Type",
+  "finish": "Finish Type or unknown",
+  "confidence": "high/medium/low"
+}
+```
+
+IMPORTANT: "color" must be a SINGLE string, not an array. No explanations, just the JSON.

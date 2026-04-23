@@ -1,0 +1,62 @@
+# Size Taxonomy Configuration
+# Standard sizes for laminates, panels, and veneers
+
+standard_sizes:
+  # Common laminate sizes (feet)
+  - name: "8*4 Feet"
+    aliases: ["8x4 ft", "8'x4'", "8 x 4 feet", "8x4"]
+    dimensions_ft: [8, 4]
+    dimensions_mm: [2440, 1220]
+    coverage_sqft: 32
+  
+  - name: "10*4 Feet"
+    aliases: ["10x4 ft", "10'x4'", "10 x 4 feet", "10x4"]
+    dimensions_ft: [10, 4]
+    dimensions_mm: [3050, 1220]
+    coverage_sqft: 40
+  
+  - name: "6*4 Feet"
+    aliases: ["6x4 ft", "6'x4'", "6 x 4 feet", "6x4"]
+    dimensions_ft: [6, 4]
+    dimensions_mm: [1830, 1220]
+    coverage_sqft: 24
+  
+  - name: "4*4 Feet"
+    aliases: ["4x4 ft", "4'x4'", "4 x 4 feet", "4x4"]
+    dimensions_ft: [4, 4]
+    dimensions_mm: [1220, 1220]
+    coverage_sqft: 16
+
+# Common thicknesses
+thicknesses:
+  - name: "0.7 mm"
+    aliases: ["0.7mm", ".7mm", "0.7"]
+  
+  - name: "0.8 mm"
+    aliases: ["0.8mm", ".8mm", "0.8"]
+  
+  - name: "1.0 mm"
+    aliases: ["1.0mm", "1mm", "1.0", "1 mm"]
+  
+  - name: "1.25 mm"
+    aliases: ["1.25mm", "1.25"]
+  
+  - name: "1.5 mm"
+    aliases: ["1.5mm", "1.5"]
+  
+  - name: "3.0 mm"
+    aliases: ["3.0mm", "3mm", "3.0"]
+  
+  - name: "4.0 mm"
+    aliases: ["4.0mm", "4mm", "4.0"]
+
+# Conversion helpers
+conversions:
+  mm_to_feet: 0.00328084
+  feet_to_mm: 304.8
+  sqft_to_sqm: 0.092903
+
+# Default values
+defaults:
+  size: "8*4 Feet"
+  thickness: "1.0 mm"

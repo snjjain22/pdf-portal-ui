@@ -1,0 +1,101 @@
+# Color Taxonomy Configuration
+# Canonical color names and normalization rules for product classification
+
+items:
+  - name: "Beige"
+    aliases: ["tan", "sand", "khaki"]
+    metadata:
+      rgb: [223, 207, 180]
+  
+  - name: "Black"
+    aliases: ["ebony", "jet black", "charcoal black"]
+    metadata:
+      rgb: [30, 30, 30]
+  
+  - name: "Blue"
+    aliases: ["navy", "azure", "teal", "turquoise"]
+    metadata:
+      rgb: [60, 110, 200]
+  
+  - name: "Brown"
+    aliases: ["chocolate", "mahogany", "chestnut", "walnut", "oak", "teak", "wenge"]
+    metadata:
+      rgb: [110, 80, 50]
+  
+  - name: "Cream"
+    aliases: ["off-white", "eggshell"]
+    metadata:
+      rgb: [240, 234, 210]
+  
+  - name: "Gold"
+    aliases: ["golden", "brass", "bronze"]
+    metadata:
+      rgb: [212, 175, 55]
+  
+  - name: "Green"
+    aliases: ["olive", "emerald", "forest", "sage"]
+    metadata:
+      rgb: [80, 150, 80]
+  
+  - name: "Grey"
+    aliases: ["gray", "charcoal", "slate", "ash"]
+    metadata:
+      rgb: [140, 140, 140]
+  
+  - name: "Ivory"
+    aliases: ["ivory/cream", "cream/ivory", "pearl white"]
+    metadata:
+      rgb: [255, 255, 240]
+  
+  - name: "Multi Colour"
+    aliases: ["multicolour", "multi colour", "multi-color", "multi colour.", "multicolor", "multi coloured", "mixed"]
+    metadata:
+      rgb: [128, 128, 128]
+  
+  - name: "Natural"
+    aliases: ["natural wood", "natural oak", "natural teak"]
+    metadata:
+      rgb: [200, 170, 130]
+  
+  - name: "Orange"
+    aliases: ["rust", "copper", "terracotta"]
+    metadata:
+      rgb: [240, 140, 60]
+  
+  - name: "Pink"
+    aliases: ["rose", "blush", "coral"]
+    metadata:
+      rgb: [240, 170, 200]
+  
+  - name: "Purple"
+    aliases: ["violet", "plum", "lavender", "mauve"]
+    metadata:
+      rgb: [140, 90, 170]
+  
+  - name: "Red"
+    aliases: ["maroon", "burgundy", "crimson", "cherry"]
+    metadata:
+      rgb: [200, 60, 70]
+  
+  - name: "Silver"
+    aliases: ["metallic silver", "chrome", "platinum"]
+    metadata:
+      rgb: [192, 192, 192]
+  
+  - name: "White"
+    aliases: ["snow white", "pure white", "bright white"]
+    metadata:
+      rgb: [245, 245, 245]
+  
+  - name: "Yellow"
+    aliases: ["lemon", "mustard", "amber"]
+    metadata:
+      rgb: [240, 220, 60]
+
+# Default color when nothing matches
+default: "Multi Colour"
+
+# Normalization approach
+normalization_rules:
+  strategy: "exact_then_alias"
+  case_sensitive: false

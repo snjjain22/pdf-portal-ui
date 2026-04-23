@@ -1,0 +1,74 @@
+# SEO Configuration for PDF Catalog Extractor
+
+seo:
+  # Brand info
+  manufacturer: "Next Level Decor"
+  brand: "Next Level Decor"
+  
+  # Title configuration
+  title:
+    max_length: 200
+    components_order:
+      - sub_category
+      - appearance
+      - category_type
+      - size
+      - thickness
+      - sku_suffix
+    
+    # Category display names
+    category_display_names:
+      laminate: "Laminate"
+      veneer: "Veneer"
+      louver: "Louver Panel"
+      panel: "Panel"
+      acrylic: "Acrylic Panel"
+  
+  # Handle (URL slug) configuration
+  handle:
+    max_length: 100
+    transformations:
+      - pattern: "[&]"
+        replacement: " and "
+      - pattern: "[×]"
+        replacement: "x"
+      - pattern: "[/\\\\]"
+        replacement: "-"
+      - pattern: "[–—]"
+        replacement: "-"
+      - pattern: "[^a-z0-9]+"
+        replacement: "-"
+      - pattern: "-{2,}"
+        replacement: "-"
+  
+  # Description settings
+  description:
+    min_words: 60
+    max_words: 80
+    include_specs: true
+    include_applications: true
+  
+  # Meta description
+  meta_description:
+    min_chars: 145
+    max_chars: 158
+    include_brand: true
+  
+  # LLM settings for SEO generation
+  llm:
+    enabled: true
+    model: "deepseek/deepseek-chat"
+    api_key_env: "OPENROUTER_API_KEY"
+    temperature: 0.3
+    max_tokens: 1500
+
+# Formatting rules
+formatting:
+  # Size formatting
+  size_format: "{length}*{width} ft"
+  thickness_format: "{value} mm"
+  coverage_format: "{area} sqft"
+  
+  # Text normalization
+  capitalize_words: true
+  remove_extra_spaces: true

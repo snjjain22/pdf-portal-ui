@@ -1,0 +1,152 @@
+# Matrixify Schema for Shopify Export
+
+matrixify:
+  # Column structure (order matters for CSV output)
+  # 61 columns matching Shopify Matrixify format
+  columns:
+    - 'ID'
+    - 'Handle'
+    - 'Title'
+    - 'Body HTML'
+    - 'Vendor'
+    - 'Type'
+    - 'Tags'
+    - 'Status'
+    - 'Published'
+    - 'Total Inventory Qty'
+    - 'Category'
+    - 'Option1 Name'
+    - 'Option1 Value'
+    - 'Option2 Name'
+    - 'Option2 Value'
+    - 'Option3 Name'
+    - 'Option3 Value'
+    - 'Variant Position'
+    - 'Variant SKU'
+    - 'Variant Barcode'
+    - 'Variant Image'
+    - 'Variant Weight'
+    - 'Variant Weight Unit'
+    - 'Variant Price'
+    - 'Variant Compare At Price'
+    - 'Variant Taxable'
+    - 'Variant Tax Code'
+    - 'Variant Inventory Tracker'
+    - 'Variant Inventory Policy'
+    - 'Variant Fulfillment Service'
+    - 'Variant Requires Shipping'
+    - 'Inventory Available: New 215 (old 146),opp nehru indoor stadium ,syndemans road, Periyamedu, Periyamet, Choolai, Chennai,'
+    - 'Metafield: title_tag [string]'
+    - 'Metafield: description_tag [string]'
+    - 'Metafield: custom.colour_family [single_line_text_field]'
+    - 'Metafield: custom.applications [list.single_line_text_field]'
+    - 'Metafield: custom.finish [single_line_text_field]'
+    - 'Metafield: custom.collection_name [single_line_text_field]'
+    - 'Metafield: custom.base_material [single_line_text_field]'
+    - 'Metafield: custom.width [single_line_text_field]'
+    - 'Metafield: custom.thickness [single_line_text_field]'
+    - 'Metafield: custom.size [single_line_text_field]'
+    - 'Metafield: custom.length [single_line_text_field]'
+    - 'Metafield: custom.coverage_area [single_line_text_field]'
+    - 'Metafield: custom.indoor_outdoor [single_line_text_field]'
+    - 'Metafield: custom.project_type [list.single_line_text_field]'
+    - 'Metafield: custom.sub_category [single_line_text_field]'
+    - 'Metafield: custom.appearance [single_line_text_field]'
+    - 'Metafield: custom.scratch_resistance [single_line_text_field]'
+    - 'Metafield: custom.water_moisture_resistant [single_line_text_field]'
+    - 'Metafield: custom.fire_resistant [single_line_text_field]'
+    - 'Metafield: custom.uv_resistant [single_line_text_field]'
+    - 'Metafield: custom.anti_fingerprint [single_line_text_field]'
+    - 'Metafield: custom.grade [single_line_text_field]'
+    - 'Image Src'
+    - 'Image Type'
+    - 'Published Scope'
+    - 'Image Alt Text'
+    - 'Image Position'
+    - 'Metafield: custom.faq_title [list.single_line_text_field]'
+    - 'Metafield: custom.faq_description [list.single_line_text_field]'
+  
+  # Fixed values for all products
+  fixed_values:
+    'Vendor': 'Next Level Decor'
+    'Type': 'Laminate'
+    'Status': 'Active'
+    'Published': 'TRUE'
+    'Total Inventory Qty': '1'
+    'Category': 'Office Supplies > General Office Supplies > Laminating Film, Pouches & Sheets > Laminating Sheets'
+    'Option1 Name': 'Title'
+    'Option1 Value': 'Default Title'
+    'Variant Weight': '0'
+    'Variant Weight Unit': 'kg'
+    'Variant Taxable': 'TRUE'
+    'Variant Inventory Policy': 'deny'
+    'Variant Fulfillment Service': 'manual'
+    'Variant Requires Shipping': 'TRUE'
+    'Inventory Available: New 215 (old 146),opp nehru indoor stadium ,syndemans road, Periyamedu, Periyamet, Choolai, Chennai,': 'Stocked'
+    'Image Type': 'IMAGE'
+    'Published Scope': 'global'
+    'Image Position': '1'
+    'Metafield: custom.scratch_resistance [single_line_text_field]': 'Yes'
+    'Metafield: custom.water_moisture_resistant [single_line_text_field]': 'Yes'
+    'Metafield: custom.fire_resistant [single_line_text_field]': 'Yes'
+    'Metafield: custom.uv_resistant [single_line_text_field]': 'Yes'
+    'Metafield: custom.anti_fingerprint [single_line_text_field]': 'Yes'
+  
+  # Field mappings from product data to Matrixify columns
+  field_mappings:
+    sku: 'Variant SKU'
+    title: 'Title'
+    seo_title: 'Metafield: title_tag [string]'
+    seo_description: 'Body HTML'
+    meta_description: 'Metafield: description_tag [string]'
+    handle: 'Handle'
+    color: 'Metafield: custom.colour_family [single_line_text_field]'
+    finish: 'Metafield: custom.finish [single_line_text_field]'
+    appearance: 'Metafield: custom.appearance [single_line_text_field]'
+    collection_name: 'Metafield: custom.collection_name [single_line_text_field]'
+    base_material: 'Metafield: custom.base_material [single_line_text_field]'
+    size: 'Metafield: custom.size [single_line_text_field]'
+    width: 'Metafield: custom.width [single_line_text_field]'
+    length: 'Metafield: custom.length [single_line_text_field]'
+    thickness: 'Metafield: custom.thickness [single_line_text_field]'
+    coverage_area: 'Metafield: custom.coverage_area [single_line_text_field]'
+    indoor_outdoor: 'Metafield: custom.indoor_outdoor [single_line_text_field]'
+    sub_category: 'Metafield: custom.sub_category [single_line_text_field]'
+    applications: 'Metafield: custom.applications [list.single_line_text_field]'
+    project_type: 'Metafield: custom.project_type [list.single_line_text_field]'
+    image_src: 'Image Src'
+    image_alt: 'Image Alt Text'
+    faq_titles: 'Metafield: custom.faq_title [list.single_line_text_field]'
+    faq_descriptions: 'Metafield: custom.faq_description [list.single_line_text_field]'
+  
+  # Category mapping
+  category_mapping:
+    laminate:
+      type: "Laminate"
+      base_material: "Laminate"
+    veneer:
+      type: "Veneer"
+      base_material: "Veneer"
+    louver:
+      type: "Louver Panel"
+      base_material: "PVC"
+    acrylic:
+      type: "Acrylic Panel"
+      base_material: "Acrylic"
+  
+  # Size parsing
+  size_parsing:
+    pattern: '(\d+(?:\.\d+)?)\s*[*xX×]\s*(\d+(?:\.\d+)?)\s*(ft|feet|mm|inch)?'
+    default_unit: 'ft'
+    area_format: '{area} sqft'
+  
+  # Default values
+  defaults:
+    grade: "Premium"
+    indoor_outdoor: "Indoor"
+    sub_category: "Decorative"
+
+output:
+  filename_template: "matrixify_export.csv"
+  encoding: "utf-8"
+  index: false
