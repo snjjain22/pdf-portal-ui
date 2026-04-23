@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+MODELS_DIR="/app/prompt_based_PDF_extractor/models"
+mkdir -p "$MODELS_DIR"
+
+# Download GroundingDINO weights if not already present
+DINO_WEIGHTS="$MODELS_DIR/groundingdino_swint_ogc.pth"
+if [ ! -f "$DINO_WEIGHTS" ]; then
+    echo "Downloading GroundingDINO weights..."
+    wget -q --show-progress -O "$DINO_WEIGHTS" \
+        "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth"
+    echo "✓ GroundingDINO weights downloaded"
+else
+    echo "✓ GroundingDINO weights already present"
+fi
+
+# Download SAM weights if not already present
+SAM_WEIGHTS="$MODELS_DIR/sam_vit_b_01ec64.pth"
+if [ ! -f "$SAM_WEIGHTS" ]; then
+    echo "Downloading SAM weights..."
+    wget -q --show-progress -O "$SAM_WEIGHTS" \
+        "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth"
+    echo "✓ SAM weights downloaded"
+else
+    echo "✓ SAM weights already present"
+fi
+
+echo "Starting PDF Portal..."
+python pdf_portal/app.py

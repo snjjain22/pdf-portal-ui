@@ -1,13 +1,14 @@
 [phases.setup]
-nixPkgs = ["gcc", "ninja", "git", "libGL", "glib"]
+nixPkgs = ["gcc", "ninja", "git", "libGL", "glib", "wget"]
 
 [phases.install]
 cmds = [
-  "pip install torch==2.2.2+cpu torchvision==0.17.2+cpu --index-url https://download.pytorch.org/whl/cpu",
+  "pip install 'numpy<2'",
+  "pip install torch==2.4.0+cpu torchvision==0.19.0+cpu --index-url https://download.pytorch.org/whl/cpu",
   "pip install groundingdino-py segment-anything",
   "pip install -r prompt_based_PDF_extractor/requirements.txt",
   "pip install -r pdf_portal/requirements.txt",
 ]
 
 [start]
-cmd = "python pdf_portal/app.py"
+cmd = "bash start.sh"

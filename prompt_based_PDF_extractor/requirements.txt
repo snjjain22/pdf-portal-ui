@@ -7,7 +7,7 @@ pdfplumber>=0.10.0
 
 # Data handling
 pandas>=2.0.0
-numpy>=1.24.0
+numpy>=1.24.0,<2.0
 
 # HTTP requests for API calls
 requests>=2.31.0
