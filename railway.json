@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "python pdf_portal/app.py",
+    "startCommand": "bash start.sh",
     "healthcheckPath": "/",
     "restartPolicyType": "ON_FAILURE"
   }

@@ -221,10 +221,7 @@ def regenerate_qr(run_name: str):
 
 STAGE_CHOICES = [f"Stage {k} — {v.split('—')[1].strip()}" for k, v in STAGE_LABELS.items()]
 
-with gr.Blocks(
-    theme=gr.themes.Soft(),
-    title="Next Level Decor — PDF Pipeline Portal",
-) as demo:
+with gr.Blocks(title="Next Level Decor — PDF Pipeline Portal") as demo:
 
     gr.Markdown(
         """
@@ -354,4 +351,5 @@ demo.launch(
     server_name="0.0.0.0",
     server_port=int(os.environ.get("PORT", 7860)),
     show_error=True,
+    theme=gr.themes.Soft(),
 )
