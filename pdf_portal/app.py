@@ -353,5 +353,13 @@ demo.queue().launch(
     show_error=True,
     show_api=False,
     share=False,
-    prevent_thread_lock=False,
+    prevent_thread_lock=True,
 )
+
+# Keep the main thread alive so the Gradio server keeps running
+import time
+try:
+    while True:
+        time.sleep(3600)
+except KeyboardInterrupt:
+    print("Shutting down...")
