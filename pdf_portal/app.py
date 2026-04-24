@@ -347,8 +347,11 @@ with gr.Blocks(title="Next Level Decor — PDF Pipeline Portal") as demo:
                 """
             )
 
-demo.launch(
+demo.queue().launch(
     server_name="0.0.0.0",
     server_port=int(os.environ.get("PORT", 7860)),
     show_error=True,
+    show_api=False,
+    share=False,
+    prevent_thread_lock=False,
 )
