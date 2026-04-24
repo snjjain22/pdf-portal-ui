@@ -20,10 +20,8 @@ PyYAML>=6.0.1
 python-dotenv>=1.0.0
 
 # Object Detection (Grounding DINO + SAM)
-torch>=2.0.0
-torchvision>=0.15.0
-groundingdino-py>=0.1.0
-segment-anything>=1.0
+# Note: torch, torchvision, groundingdino-py, segment-anything installed separately in nixpacks.toml
+# to avoid version conflicts. Do not add them here.
 
 # OCR for SKU extraction
 easyocr>=1.7.0

@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["gcc", "ninja", "git", "libGL", "glib", "wget"]
+nixPkgs = ["gcc", "ninja", "git", "libGL", "glib"]
 
 [phases.install]
 cmds = [
@@ -8,6 +8,7 @@ cmds = [
   "pip install groundingdino-py segment-anything",
   "pip install -r prompt_based_PDF_extractor/requirements.txt",
   "pip install -r pdf_portal/requirements.txt",
+  "pip install torch==2.4.0+cpu torchvision==0.19.0+cpu --index-url https://download.pytorch.org/whl/cpu --force-reinstall --no-deps",
 ]
 
 [start]
