@@ -347,17 +347,22 @@ with gr.Blocks(title="Next Level Decor — PDF Pipeline Portal") as demo:
                 """
             )
 
-demo.queue().launch(
-    server_name="0.0.0.0",
-    server_port=int(os.environ.get("PORT", 7860)),
-    show_error=True,
-    show_api=False,
-    share=False,
-    prevent_thread_lock=True,
-)
+os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
 
-# Keep the main thread alive so the Gradio server keeps running
+try:
+    demo.queue().launch(
+        server_name="0.0.0.0",
+        server_port=int(os.environ.get("PORT", 7860)),
+        show_error=True,
+        show_api=False,
+        share=False,
+        prevent_thread_lock=True,
+    )
+except ValueError as e:
+    print(f"Ignoring Gradio post-launch check: {e}")
+
 import time
+print("Gradio server running. Keeping main thread alive...")
 try:
     while True:
         time.sleep(3600)
