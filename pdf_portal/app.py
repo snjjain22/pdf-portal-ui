@@ -4,6 +4,28 @@ Next Level Decor — PDF Pipeline Portal
 A web UI for running the PDF catalog extraction pipeline.
 """
 
+# ── Monkey-patch gradio_client to handle boolean schemas (bug in 1.3.x) ─────
+import gradio_client.utils as _gc_utils
+
+_orig_get_type = _gc_utils.get_type
+
+def _safe_get_type(schema):
+    if not isinstance(schema, dict):
+        return "Any"
+    return _orig_get_type(schema)
+
+_gc_utils.get_type = _safe_get_type
+
+_orig_json_schema_to_python_type = _gc_utils._json_schema_to_python_type
+
+def _safe_json_schema_to_python_type(schema, defs=None):
+    if not isinstance(schema, dict):
+        return "Any"
+    return _orig_json_schema_to_python_type(schema, defs)
+
+_gc_utils._json_schema_to_python_type = _safe_json_schema_to_python_type
+# ── End monkey-patch ────────────────────────────────────────────────────────
+
 import gradio as gr
 import os
 import subprocess
