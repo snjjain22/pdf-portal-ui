@@ -126,15 +126,8 @@ class SKUExtractor:
         text_regions = []
         
         if self.engine == "easyocr":
-            import cv2
-            
-            img = cv2.imread(str(image_path))
-            if img is None:
-                logger.error(f"Failed to load image for OCR: {image_path}")
-                return []
-            
-            # EasyOCR returns: [[bbox, text, confidence], ...]
-            results = self._reader.readtext(img)
+            # Pass file path string directly — EasyOCR loads it itself, avoids cv2 issues
+            results = self._reader.readtext(str(image_path))
             
             for bbox, text, confidence in results:
                 # EasyOCR bbox is [[x1,y1], [x2,y1], [x2,y2], [x1,y2]]
