@@ -117,10 +117,10 @@ class GroundedSAMDetector:
         try:
             from groundingdino.util.inference import load_model
             import groundingdino
-        except ImportError:
+        except ImportError as e:
             raise ImportError(
-                "GroundingDINO not installed. Install with:\n"
-                "pip install groundingdino-py"
+                f"GroundingDINO import failed: {e}\n"
+                "Original error above. Install missing module."
             )
         
         if not self.dino_weights.exists():

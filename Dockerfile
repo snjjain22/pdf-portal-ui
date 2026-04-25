@@ -30,6 +30,7 @@ RUN pip install --no-cache-dir --no-deps groundingdino-py segment-anything
 
 # Install GroundingDINO's actual runtime deps manually
 RUN pip install --no-cache-dir --no-deps addict yapf timm supervision pycocotools
+RUN pip install --no-cache-dir omegaconf opencv-python-headless
 
 # Install pipeline and portal requirements using the constraints file
 RUN pip install --no-cache-dir -c constraints.txt -r prompt_based_PDF_extractor/requirements.txt
