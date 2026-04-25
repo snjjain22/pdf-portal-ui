@@ -28,10 +28,10 @@ RUN pip install --no-cache-dir \
 # Install GroundingDINO + SAM with --no-deps so they don't downgrade torch/transformers
 RUN pip install --no-cache-dir --no-deps groundingdino-py segment-anything
 
-# Install GroundingDINO's actual runtime deps manually
-# Pin supervision to 0.6.0 — newer versions use APIs incompatible with our deprecate version
-RUN pip install --no-cache-dir --no-deps addict yapf timm pycocotools 'supervision==0.6.0'
-RUN pip install --no-cache-dir omegaconf opencv-python-headless defusedxml tomli
+# Install GroundingDINO's actual runtime deps
+# yapf and timm need their own deps so install them with deps
+RUN pip install --no-cache-dir yapf timm omegaconf opencv-python-headless defusedxml
+RUN pip install --no-cache-dir --no-deps addict pycocotools 'supervision==0.6.0'
 
 # Install pipeline and portal requirements using the constraints file
 RUN pip install --no-cache-dir -c constraints.txt -r prompt_based_PDF_extractor/requirements.txt
