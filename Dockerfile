@@ -20,8 +20,10 @@ RUN pip install --no-cache-dir \
     --index-url https://download.pytorch.org/whl/cpu
 
 # Install transformers/tokenizers/HF hub at versions compatible with torch 2.2
+# Also pin starlette<1.0 and fastapi<0.115 (gradio 4.44.1 needs old TemplateResponse API)
 RUN pip install --no-cache-dir \
-    transformers==4.44.2 tokenizers==0.19.1 huggingface-hub==0.24.7
+    transformers==4.44.2 tokenizers==0.19.1 huggingface-hub==0.24.7 \
+    'starlette<1.0' 'fastapi<0.115'
 
 # Install GroundingDINO + SAM with --no-deps so they don't downgrade torch/transformers
 RUN pip install --no-cache-dir --no-deps groundingdino-py segment-anything
