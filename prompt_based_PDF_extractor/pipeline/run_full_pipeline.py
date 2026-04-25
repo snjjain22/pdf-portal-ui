@@ -174,8 +174,11 @@ def run_full_pipeline(
             logger.info(f"✓ Stage 1 complete: {stage_result.get('product_count')} products detected")
             
         except Exception as e:
-            logger.error(f"✗ Stage 1 failed: {e}")
-            results["stages"]["1_detection"] = {"status": "error", "error": str(e)}
+            import traceback
+            tb = traceback.format_exc()
+            logger.error(f"✗ Stage 1 failed: {type(e).__name__}: {e}")
+            logger.error(f"Traceback:\n{tb}")
+            results["stages"]["1_detection"] = {"status": "error", "error": str(e), "traceback": tb}
             results["status"] = "failed"
             return results
     else:
