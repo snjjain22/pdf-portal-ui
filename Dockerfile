@@ -11,8 +11,8 @@ COPY . .
 # Upgrade pip
 RUN pip install --upgrade pip
 
-# Pin numpy below 2 and scipy below 1.14 (both needed for numpy-1.x compatibility)
-RUN pip install --no-cache-dir 'numpy<2' 'scipy<1.14'
+# Pin numpy<2 and scipy==1.11.4 (well-tested with numpy 1.x; 1.13+ has fortran issues)
+RUN pip install --no-cache-dir 'numpy<2' 'scipy==1.11.4'
 
 # Install torch CPU version (pinned exactly)
 RUN pip install --no-cache-dir \
