@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Next Level Decor — PDF Pipeline Portal
-A web UI for running the PDF catalog extraction pipeline.
+Next Level Decor — PDF Pipeline Portal (Background Job Version)
+Pipeline runs as a detached subprocess so the browser doesn't time out.
 """
 
 # ── Monkey-patch gradio_client to handle boolean schemas (bug in 1.3.x) ─────
@@ -30,344 +30,278 @@ import gradio as gr
 import os
 import subprocess
 import sys
-import json
 import shutil
-import tempfile
+import threading
 from pathlib import Path
 from datetime import datetime
 
-# ── Path setup ──────────────────────────────────────────────────────────────
+# ── Paths ────────────────────────────────────────────────────────────────────
 PORTAL_DIR = Path(__file__).parent
-
-# Support REPO_ROOT env var for Docker/Railway deployments (set to /app)
-# Falls back to parent of this file's directory for local dev
 REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(PORTAL_DIR.parent)))
-
 PIPELINE_DIR = REPO_ROOT / "prompt_based_PDF_extractor" / "pipeline"
 OUTPUTS_DIR = REPO_ROOT / "prompt_based_PDF_extractor" / "outputs"
 PDFS_DIR = REPO_ROOT / "prompt_based_PDF_extractor" / "PDFs"
+JOBS_DIR = OUTPUTS_DIR / ".jobs"
 PYTHON = sys.executable
 
 OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 PDFS_DIR.mkdir(parents=True, exist_ok=True)
+JOBS_DIR.mkdir(parents=True, exist_ok=True)
 
 STAGE_LABELS = {
     0: "Stage 0 — PDF to Images",
-    1: "Stage 1 — Detection (GroundingDINO + SAM)",
+    1: "Stage 1 — Detection (slow on CPU)",
     2: "Stage 2 — Field Mapping (LLM)",
     3: "Stage 3 — SEO Content Generation",
     4: "Stage 4 — S3 Image Upload",
-    5: "Stage 5 — Application Images (Satyam's Model)",
+    5: "Stage 5 — Application Images",
     6: "Stage 6 — Matrixify CSV Export",
     7: "Stage 7 — Validate & Clean",
     8: "Stage 8 — QR Code Generation",
 }
+STAGE_CHOICES = [v for v in STAGE_LABELS.values()]
 
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# ── Job management ──────────────────────────────────────────────────────────
 
-def list_past_runs():
-    """Return list of completed pipeline output directories."""
-    if not OUTPUTS_DIR.exists():
+def list_jobs():
+    """Return all job IDs sorted by most recent first."""
+    if not JOBS_DIR.exists():
         return []
-    runs = sorted(
-        [d for d in OUTPUTS_DIR.iterdir() if d.is_dir()],
-        key=lambda d: d.stat().st_mtime,
-        reverse=True,
-    )
-    return [d.name for d in runs]
+    files = sorted(JOBS_DIR.glob("*.status"), key=lambda p: p.stat().st_mtime, reverse=True)
+    return [p.stem for p in files]
 
 
-def get_run_summary(run_name: str) -> dict:
-    """Read pipeline run summary from outputs directory."""
-    run_dir = OUTPUTS_DIR / run_name
-    if not run_dir.exists():
-        return {}
-
-    summary = {"run_name": run_name, "files": []}
-
-    csv_files = list(run_dir.glob("matrixify_*.csv"))
-    if csv_files:
-        summary["csv"] = str(csv_files[0])
-        summary["csv_name"] = csv_files[0].name
-
-    qr_dir = run_dir / "qr_codes"
-    if qr_dir.exists():
-        pdf_files = list(qr_dir.glob("qr_sheet_*.pdf"))
-        if pdf_files:
-            summary["qr_pdf"] = str(pdf_files[0])
-            summary["qr_pdf_name"] = pdf_files[0].name
-
-        manifest = qr_dir / "qr_manifest.csv"
-        if manifest.exists():
-            summary["manifest"] = str(manifest)
-
-        png_count = len(list(qr_dir.glob("*.png")))
-        summary["qr_count"] = png_count
-
-    return summary
-
-
-# ── Tab 1: Run Pipeline ──────────────────────────────────────────────────────
-
-def run_pipeline(pdf_file, vendor_name, skip_stages_list, generate_qr, limit_pages):
-    """Run the pipeline and stream logs."""
+def start_pipeline_job(pdf_file, vendor_name, skip_stages_list, generate_qr, limit_pages):
+    """Start the pipeline as a background subprocess. Returns immediately."""
 
     if pdf_file is None:
-        yield "⚠️  Please upload a PDF first.", None, None, gr.update(choices=list_past_runs())
-        return
+        return "⚠️  Please upload a PDF first.", gr.update(choices=list_jobs())
 
-    # Copy uploaded PDF to PDFs/ directory
     pdf_src = Path(pdf_file.name)
     pdf_dest = PDFS_DIR / pdf_src.name
     shutil.copy(str(pdf_src), str(pdf_dest))
 
-    vendor = vendor_name.strip() or "Next Level Decor"
+    vendor = (vendor_name or "").strip() or "Next Level Decor"
 
-    # Build skip list
-    skip_nums = [int(s.split("—")[0].strip().replace("Stage ", "")) for s in skip_stages_list]
-    skip_arg = " ".join(str(s) for s in skip_nums) if skip_nums else ""
+    skip_nums = []
+    for s in (skip_stages_list or []):
+        try:
+            num = int(s.split("—")[0].strip().replace("Stage ", ""))
+            skip_nums.append(num)
+        except Exception:
+            pass
 
-    # Build command
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    job_id = f"{pdf_src.stem.replace(' ', '_')}_{timestamp}"
+
+    job_log = JOBS_DIR / f"{job_id}.log"
+    job_status = JOBS_DIR / f"{job_id}.status"
+
     run_script = PIPELINE_DIR / "run_full_pipeline.py"
-    cmd = [PYTHON, str(run_script), str(pdf_dest), f"--vendor", vendor]
-
-    if skip_arg:
-        cmd += ["--skip"] + [str(s) for s in skip_nums]
+    cmd = [PYTHON, str(run_script), str(pdf_dest), "--vendor", vendor]
+    if skip_nums:
+        cmd += ["--skip"] + [str(n) for n in skip_nums]
     if generate_qr:
         cmd.append("--qr")
-    if limit_pages and limit_pages > 0:
-        cmd += ["--limit", str(limit_pages)]
+    if limit_pages and int(limit_pages) > 0:
+        cmd += ["--limit", str(int(limit_pages))]
 
-    log_lines = []
-    log_lines.append(f"🚀  Starting pipeline: {pdf_src.name}")
-    log_lines.append(f"    Vendor: {vendor}")
-    log_lines.append(f"    Skipping stages: {skip_nums or 'none'}")
-    log_lines.append(f"    QR codes: {'yes' if generate_qr else 'no'}")
-    log_lines.append(f"    Command: {' '.join(cmd)}\n")
-    yield "\n".join(log_lines), None, None, gr.update(choices=list_past_runs())
+    job_status.write_text("running")
 
-    try:
-        env = os.environ.copy()
-        env["PYTHONUNBUFFERED"] = "1"
+    log_f = open(job_log, "w", encoding="utf-8")
+    log_f.write(f"🚀 Job: {job_id}\n")
+    log_f.write(f"   PDF: {pdf_src.name}\n")
+    log_f.write(f"   Vendor: {vendor}\n")
+    log_f.write(f"   Skipping stages: {skip_nums or 'none'}\n")
+    log_f.write(f"   QR codes: {generate_qr}\n")
+    log_f.write(f"   Started: {datetime.now().isoformat()}\n")
+    log_f.write(f"   Command: {' '.join(cmd)}\n\n")
+    log_f.flush()
 
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            env=env,
-            cwd=str(PIPELINE_DIR.parent),
-        )
+    env = os.environ.copy()
+    env["PYTHONUNBUFFERED"] = "1"
 
-        for line in iter(process.stdout.readline, ""):
-            log_lines.append(line.rstrip())
-            yield "\n".join(log_lines[-200:]), None, None, gr.update(choices=list_past_runs())
+    process = subprocess.Popen(
+        cmd,
+        stdout=log_f,
+        stderr=subprocess.STDOUT,
+        env=env,
+        cwd=str(PIPELINE_DIR.parent),
+    )
 
+    def wait_and_update():
         process.wait()
-
+        try:
+            log_f.close()
+        except Exception:
+            pass
         if process.returncode == 0:
-            log_lines.append("\n✅  Pipeline complete!")
+            job_status.write_text("completed")
         else:
-            log_lines.append(f"\n❌  Pipeline failed (exit code {process.returncode})")
+            job_status.write_text(f"failed (exit {process.returncode})")
 
-    except Exception as e:
-        log_lines.append(f"\n❌  Error: {e}")
+    threading.Thread(target=wait_and_update, daemon=True).start()
 
-    # Determine output dir name
-    pdf_stem = pdf_src.stem.replace(" ", "_").replace("-", "_").upper() + "_PDF"
-    run_dir = OUTPUTS_DIR / pdf_stem
-    summary = get_run_summary(pdf_stem) if run_dir.exists() else {}
-
-    csv_path = summary.get("csv")
-    qr_pdf_path = summary.get("qr_pdf")
-
-    yield (
-        "\n".join(log_lines[-200:]),
-        csv_path,
-        qr_pdf_path,
-        gr.update(choices=list_past_runs()),
+    msg = (
+        f"✅  **Job started:** `{job_id}`\n\n"
+        f"Go to the **Job Status** tab to view live logs and download results.\n\n"
+        f"The pipeline runs in the background — you can close this browser tab "
+        f"and the job will continue. Come back anytime to check progress."
     )
+    return msg, gr.update(choices=list_jobs(), value=job_id)
 
 
-# ── Tab 2: Results ───────────────────────────────────────────────────────────
+def get_job_status(job_id: str):
+    """Return status, logs, CSV path, QR PDF path for a job."""
+    if not job_id:
+        return "Select a job to view status.", "", None, None
 
-def load_run_details(run_name: str):
-    """Load details for a selected past run."""
-    if not run_name:
-        return "Select a run to view details.", None, None, "0"
+    status_file = JOBS_DIR / f"{job_id}.status"
+    log_file = JOBS_DIR / f"{job_id}.log"
 
-    summary = get_run_summary(run_name)
-    if not summary:
-        return "No data found for this run.", None, None, "0"
+    status = status_file.read_text().strip() if status_file.exists() else "unknown"
+    logs = log_file.read_text(encoding="utf-8", errors="replace") if log_file.exists() else "(no logs)"
 
-    lines = [f"**Run:** {run_name}"]
-    if "csv_name" in summary:
-        lines.append(f"**Matrixify CSV:** {summary['csv_name']}")
-    if "qr_pdf_name" in summary:
-        lines.append(f"**QR Sheet PDF:** {summary['qr_pdf_name']}")
-    if "qr_count" in summary:
-        lines.append(f"**QR codes generated:** {summary['qr_count']}")
+    # Try to find pipeline outputs by parsing the PDF name out of the job ID
+    parts = job_id.rsplit("_", 2)
+    pdf_stem = parts[0] if len(parts) >= 3 else job_id
+    output_dir = OUTPUTS_DIR / (pdf_stem.upper() + "_PDF")
 
-    return (
-        "\n".join(lines),
-        summary.get("csv"),
-        summary.get("qr_pdf"),
-        str(summary.get("qr_count", "0")),
-    )
+    csv_path = None
+    qr_pdf = None
+    if output_dir.exists():
+        csvs = list(output_dir.glob("matrixify_*.csv"))
+        if csvs:
+            csv_path = str(csvs[0])
+        qr_dir = output_dir / "qr_codes"
+        if qr_dir.exists():
+            pdfs = list(qr_dir.glob("qr_sheet_*.pdf"))
+            if pdfs:
+                qr_pdf = str(pdfs[0])
 
+    icon = {"running": "🔄", "completed": "✅"}.get(status.split()[0] if status else "", "❌")
+    status_md = f"### {icon}  Status: `{status}`"
 
-def regenerate_qr(run_name: str):
-    """Re-run Stage 8 QR generation for an existing run."""
-    if not run_name:
-        return "⚠️  Select a run first.", None
+    # Show last 200 lines of log to keep it manageable
+    log_lines = logs.splitlines()
+    log_tail = "\n".join(log_lines[-200:])
 
-    run_dir = OUTPUTS_DIR / run_name
-    if not run_dir.exists():
-        return f"❌  Output directory not found: {run_name}", None
-
-    qr_script = PIPELINE_DIR / "8_generate_qr_codes.py"
-    cmd = [PYTHON, str(qr_script), "--output-dir", str(run_dir), "--force"]
-
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, cwd=str(PIPELINE_DIR.parent))
-        output = result.stdout + result.stderr
-        summary = get_run_summary(run_name)
-        return output, summary.get("qr_pdf")
-    except Exception as e:
-        return f"❌  Error: {e}", None
+    return status_md, log_tail, csv_path, qr_pdf
 
 
-# ── UI Layout ────────────────────────────────────────────────────────────────
+# ── UI ──────────────────────────────────────────────────────────────────────
 
-STAGE_CHOICES = [f"Stage {k} — {v.split('—')[1].strip()}" for k, v in STAGE_LABELS.items()]
-
-with gr.Blocks(title="Next Level Decor — PDF Pipeline Portal") as demo:
-
+with gr.Blocks(title="NLD — PDF Pipeline Portal") as demo:
     gr.Markdown(
         """
         # Next Level Decor — PDF Pipeline Portal
-        Upload a vendor catalog PDF and run the full extraction pipeline.
+        Upload a vendor catalog PDF. Pipeline runs in the background.
         """
     )
 
     with gr.Tabs():
 
-        # ── Tab 1: Run Pipeline ──────────────────────────────────────────────
-        with gr.TabItem("Run Pipeline"):
+        # ── Tab 1: Start a job ──────────────────────────────────────────────
+        with gr.TabItem("Start Pipeline"):
             with gr.Row():
-                with gr.Column(scale=1):
-                    pdf_input = gr.File(
-                        label="Upload Catalog PDF",
-                        file_types=[".pdf"],
-                    )
+                with gr.Column():
+                    pdf_input = gr.File(label="Upload Catalog PDF", file_types=[".pdf"])
                     vendor_input = gr.Textbox(
                         label="Vendor / Brand Name",
-                        placeholder="e.g. Xterio, Greenlam, Virgo",
                         value="Next Level Decor",
                     )
                     skip_input = gr.CheckboxGroup(
                         label="Skip Stages",
                         choices=STAGE_CHOICES,
-                        value=[],
-                        info="All stages run on CPU. Stage 5 calls HuggingFace Spaces API for image generation.",
+                        value=["Stage 1 — Detection (slow on CPU)", "Stage 5 — Application Images"],
+                        info="Stage 1 (CPU detection) takes 30-60 min for a full catalog. Skip it to use auto-generated SKUs.",
                     )
-                    with gr.Row():
-                        qr_toggle = gr.Checkbox(label="Generate QR Codes (Stage 8)", value=True)
-                        limit_input = gr.Number(
-                            label="Limit Pages (0 = all)",
-                            value=0,
-                            minimum=0,
-                            precision=0,
-                        )
-                    run_btn = gr.Button("Run Pipeline", variant="primary", size="lg")
-
-                with gr.Column(scale=2):
-                    log_output = gr.Textbox(
-                        label="Pipeline Logs",
-                        lines=30,
-                        max_lines=30,
-                        autoscroll=True,
-                        interactive=False,
-                        placeholder="Logs will appear here when the pipeline runs...",
+                    qr_toggle = gr.Checkbox(label="Generate QR Codes (Stage 8)", value=True)
+                    limit_input = gr.Number(
+                        label="Limit Pages (0 = all, useful for testing)",
+                        value=0,
+                        minimum=0,
+                        precision=0,
                     )
-                    with gr.Row():
-                        csv_download = gr.File(label="Download Matrixify CSV", interactive=False)
-                        qr_download = gr.File(label="Download QR Sheet PDF", interactive=False)
+                    run_btn = gr.Button("Start Pipeline Job", variant="primary", size="lg")
 
-            past_runs_state = gr.State(list_past_runs())
+                with gr.Column():
+                    start_msg = gr.Markdown("Upload a PDF and click **Start Pipeline Job**.")
 
-            run_btn.click(
-                fn=run_pipeline,
-                inputs=[pdf_input, vendor_input, skip_input, qr_toggle, limit_input],
-                outputs=[log_output, csv_download, qr_download, past_runs_state],
-            )
-
-        # ── Tab 2: Past Results ──────────────────────────────────────────────
-        with gr.TabItem("Results"):
+        # ── Tab 2: View job status / logs / outputs ─────────────────────────
+        with gr.TabItem("Job Status"):
             with gr.Row():
-                with gr.Column(scale=1):
-                    runs_dropdown = gr.Dropdown(
-                        label="Select a Past Run",
-                        choices=list_past_runs(),
-                        interactive=True,
-                    )
-                    refresh_btn = gr.Button("Refresh List")
-                    regen_qr_btn = gr.Button("Re-generate QR Codes", variant="secondary")
+                jobs_dropdown = gr.Dropdown(
+                    label="Select a Job",
+                    choices=list_jobs(),
+                    interactive=True,
+                    scale=4,
+                )
+                refresh_btn = gr.Button("🔄 Refresh", scale=1)
 
-                with gr.Column(scale=2):
-                    run_details = gr.Markdown("Select a run to view details.")
-                    qr_count_label = gr.Textbox(label="QR Codes", interactive=False)
-                    with gr.Row():
-                        result_csv = gr.File(label="Matrixify CSV", interactive=False)
-                        result_qr = gr.File(label="QR Sheet PDF", interactive=False)
-                    regen_log = gr.Textbox(label="Re-generation Log", lines=5, interactive=False)
-
-            refresh_btn.click(
-                fn=lambda: gr.update(choices=list_past_runs()),
-                outputs=runs_dropdown,
+            status_display = gr.Markdown("Select a job above.")
+            logs_display = gr.Textbox(
+                label="Live Logs (last 200 lines)",
+                lines=25,
+                max_lines=25,
+                interactive=False,
+                autoscroll=True,
             )
+            with gr.Row():
+                csv_download = gr.File(label="Matrixify CSV", interactive=False)
+                qr_download = gr.File(label="QR Sheet PDF", interactive=False)
 
-            runs_dropdown.change(
-                fn=load_run_details,
-                inputs=runs_dropdown,
-                outputs=[run_details, result_csv, result_qr, qr_count_label],
-            )
-
-            regen_qr_btn.click(
-                fn=regenerate_qr,
-                inputs=runs_dropdown,
-                outputs=[regen_log, result_qr],
-            )
-
-        # ── Tab 3: About ─────────────────────────────────────────────────────
+        # ── Tab 3: About ────────────────────────────────────────────────────
         with gr.TabItem("About"):
             gr.Markdown(
                 """
-                ## Pipeline Stages
+                ## How it works
 
-                | Stage | Name | Description |
-                |-------|------|-------------|
-                | 0 | PDF to Images | Converts PDF pages to high-res JPEGs (600 DPI) |
-                | 1 | Detection | Detects product swatches using GroundingDINO + SAM (needs GPU) |
-                | 2 | Field Mapping | LLM derives appearance, finish, color, size, thickness |
-                | 3 | SEO | Generates titles, descriptions, handles, FAQs |
-                | 4 | S3 Upload | Uploads product images to AWS S3 |
-                | 5 | App Images | Generates room/furniture lifestyle images via FLUX model (needs GPU) |
-                | 6 | Matrixify CSV | Exports Shopify-ready 61-column CSV |
-                | 7 | Validate & Clean | Validates CSV integrity |
-                | 8 | QR Codes | Generates QR code PNGs + printable PDF sheet |
+                1. **Start Pipeline** — uploads PDF, kicks off background job, returns instantly
+                2. **Job Status** — pick your job, see live logs, download outputs when done
 
-                ## QR Code System
-                QR codes point to `https://go.nextleveldecor.in/{SKU}` which redirects to the Shopify product page.
-                This allows QR codes to be printed on product samples **before** the product is live on Shopify.
+                The pipeline subprocess runs detached — your browser can close. Job state lives on the volume.
 
-                ## Image Generator
-                Stage 5 calls the HuggingFace Space API (`Automate-GPT/NLDApplicationImageGenerator`) remotely.
-                All other stages run on CPU on Railway — no GPU required.
+                ## Pipeline stages
+                | Stage | Name | Time on CPU |
+                |-------|------|---|
+                | 0 | PDF → Images | ~10s |
+                | 1 | Product Detection | **30-60 min** for full catalog |
+                | 2 | LLM Field Mapping | ~30s per page (LLM API) |
+                | 3 | SEO Content | ~30s per page (LLM API) |
+                | 4 | S3 Image Upload | ~5s per product |
+                | 5 | Application Images | Calls HF Spaces API |
+                | 6 | Matrixify CSV | <10s |
+                | 7 | Validate & Clean | <10s |
+                | 8 | QR Code Generation | <10s |
+
+                **Tip:** Skip Stage 1 for first runs to validate the pipeline, then enable it for production.
                 """
             )
+
+    # ── Wire up events ──────────────────────────────────────────────────────
+
+    run_btn.click(
+        fn=start_pipeline_job,
+        inputs=[pdf_input, vendor_input, skip_input, qr_toggle, limit_input],
+        outputs=[start_msg, jobs_dropdown],
+    )
+
+    refresh_btn.click(
+        fn=lambda jid: (gr.update(choices=list_jobs(), value=jid), *get_job_status(jid)),
+        inputs=jobs_dropdown,
+        outputs=[jobs_dropdown, status_display, logs_display, csv_download, qr_download],
+    )
+
+    jobs_dropdown.change(
+        fn=get_job_status,
+        inputs=jobs_dropdown,
+        outputs=[status_display, logs_display, csv_download, qr_download],
+    )
+
+
+# ── Launch ──────────────────────────────────────────────────────────────────
 
 os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
 
