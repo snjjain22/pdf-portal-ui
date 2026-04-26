@@ -110,7 +110,7 @@ def get_run_summary(run_name: str) -> dict:
 
 # ── Tab 1: Run Pipeline ──────────────────────────────────────────────────────
 
-def run_pipeline(pdf_file, vendor_name, skip_stages_list, generate_qr, limit_pages, progress=gr.Progress()):
+def run_pipeline(pdf_file, vendor_name, skip_stages_list, generate_qr, limit_pages):
     """Run the pipeline and stream logs."""
 
     if pdf_file is None:
