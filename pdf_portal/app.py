@@ -163,10 +163,12 @@ def get_job_status(job_id: str):
     status = status_file.read_text().strip() if status_file.exists() else "unknown"
     logs = log_file.read_text(encoding="utf-8", errors="replace") if log_file.exists() else "(no logs)"
 
-    # Try to find pipeline outputs by parsing the PDF name out of the job ID
+    # Try to find pipeline outputs. The pipeline normalizes the PDF name as:
+    #   pdf_stem.replace(" ", "_").replace("-", "_").upper() + "_PDF"
     parts = job_id.rsplit("_", 2)
     pdf_stem = parts[0] if len(parts) >= 3 else job_id
-    output_dir = OUTPUTS_DIR / (pdf_stem.upper() + "_PDF")
+    normalized = pdf_stem.replace(" ", "_").replace("-", "_").upper() + "_PDF"
+    output_dir = OUTPUTS_DIR / normalized
 
     csv_path = None
     qr_pdf = None
@@ -180,8 +182,14 @@ def get_job_status(job_id: str):
             if pdfs:
                 qr_pdf = str(pdfs[0])
 
+    # Append output directory diagnostic to the status display
+    diagnostic = f"\n\n📂 Looking in: `{output_dir.name}` — exists: {output_dir.exists()}"
+    if output_dir.exists():
+        contents = sorted([p.name for p in output_dir.iterdir()])[:20]
+        diagnostic += f"\n📁 Files: {', '.join(contents)}"
+
     icon = {"running": "🔄", "completed": "✅"}.get(status.split()[0] if status else "", "❌")
-    status_md = f"### {icon}  Status: `{status}`"
+    status_md = f"### {icon}  Status: `{status}`{diagnostic}"
 
     # Show last 200 lines of log to keep it manageable
     log_lines = logs.splitlines()
