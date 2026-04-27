@@ -14,6 +14,7 @@ Usage:
 """
 
 import argparse
+import os
 import sys
 import logging
 from pathlib import Path
@@ -390,8 +391,9 @@ def validate_and_clean(output_dir: str, config_dir: str = None) -> Dict[str, Any
         if appearance_col in df.columns:
             df[appearance_col] = df[appearance_col].astype(str).apply(lambda x: x[:1].lower() + x[1:] if pd.notna(x) and x != 'nan' and len(x) > 0 else x)
 
-        # Filter out rows that do not have application images (indicated by missing ';' in Image Src)
-        if 'Image Src' in df.columns:
+        # Optionally filter out rows missing application images (semicolons in Image Src).
+        # Disabled by default — keep products even if Stage 5 (app images) failed/skipped.
+        if os.getenv("STRICT_APP_IMAGES") == "1" and 'Image Src' in df.columns:
             initial_row_count = len(df)
             df = df[df['Image Src'].astype(str).str.contains(';', na=False)]
             removed_count = initial_row_count - len(df)
